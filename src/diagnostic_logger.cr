@@ -1,30 +1,37 @@
 require "logger"
 require "./lib/version"
 require "./lib/config"
+require "./lib/channel_util"
 
 class DiagnosticLogger
   private alias Message = {timestamp: Time, msg: String, fiber_name: String?, level: ::Logger::Severity, name: String?, pid: Int32}
   private Input = Channel(Message).new
+  @@batch_max_size = Config.load_batch_max_size
+  @@batch_max_time = Config.load_batch_max_time
+  @@batch : Channel(Enumerable(Message)) = ChannelUtil.batch(Input, max_size: @@batch_max_size, max_time: @@batch_max_time)
 
   spawn do
     loop do
-      write(Input.receive)
+      rec = @@batch.receive
+      write(rec)
     end
   end
 
   def initialize(@name : String? = nil)
   end
 
-  def self.write(message)
-    io << pattern % {
-      date:   message[:timestamp],
-      level:  message[:level],
-      logger: message[:name],
-      fiber:  message[:fiber_name],
-      msg:    message[:msg],
-      pid:    message[:pid],
+  def self.write(messages : Enumerable(Message))
+    messages.each { |message|
+      io << pattern % {
+        date:   message[:timestamp],
+        level:  message[:level],
+        logger: message[:name],
+        fiber:  message[:fiber_name],
+        msg:    message[:msg],
+        pid:    message[:pid],
+      }
+      io << "\n"
     }
-    io << "\n"
     io.flush
   end
 

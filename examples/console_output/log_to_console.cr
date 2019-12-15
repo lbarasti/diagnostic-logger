@@ -1,4 +1,13 @@
 require "../../src/diagnostic_logger"
+require "uuid"
 
 log = DiagnosticLogger.new("to-console")
-log.info("hello world")
+
+1000.times { |i|
+  spawn(name: "f_#{i}") do
+    sleep 2 * rand
+    log.info(UUID.random.to_s)
+  end
+}
+
+sleep 5

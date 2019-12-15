@@ -36,5 +36,18 @@ class DiagnosticLogger
       appender = data["logger"]["appender"]?
       appender && appender["pattern"]? ? appender["pattern"].as_s : DefaultPattern
     end
+
+    def self.load_batch_max_size(config : String = File.read(ConfigFile)) : Int32
+      data = YAML.parse config
+      batch_config = data["logger"]["batch"]?
+      batch_config && batch_config["max_size"]? ? batch_config["max_size"].as_i : 1
+    end
+
+    def self.load_batch_max_time(config : String = File.read(ConfigFile)) : Time::Span
+      data = YAML.parse config
+      batch_config = data["logger"]["batch"]?
+      max_time = batch_config && batch_config["max_time"]? ? batch_config["max_time"].as_f : 0.5
+      max_time.seconds
+    end
   end
 end
