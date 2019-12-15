@@ -34,9 +34,7 @@ class DiagnosticLogger
     def self.load_pattern(config : String = File.read(ConfigFile))
       data = YAML.parse config
       appender = data["logger"]["appender"]?
-      appender && appender["pattern"]? ?
-        appender["pattern"].as_s :
-        DefaultPattern
+      appender && appender["pattern"]? ? appender["pattern"].as_s : DefaultPattern
     end
   end
 end

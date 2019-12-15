@@ -3,14 +3,7 @@ require "./lib/version"
 require "./lib/config"
 
 class DiagnosticLogger
-  private alias Message = {
-    timestamp: Time,
-    msg: String,
-    fiber_name: String?,
-    level: ::Logger::Severity,
-    name: String?,
-    pid: Int32
-  }
+  private alias Message = {timestamp: Time, msg: String, fiber_name: String?, level: ::Logger::Severity, name: String?, pid: Int32}
   private Input = Channel(Message).new
 
   spawn do
@@ -24,12 +17,12 @@ class DiagnosticLogger
 
   def self.write(message)
     io << pattern % {
-      date: message[:timestamp],
-      level: message[:level],
+      date:   message[:timestamp],
+      level:  message[:level],
       logger: message[:name],
-      fiber: message[:fiber_name],
-      msg: message[:msg],
-      pid: message[:pid]
+      fiber:  message[:fiber_name],
+      msg:    message[:msg],
+      pid:    message[:pid],
     }
     io << "\n"
     io.flush

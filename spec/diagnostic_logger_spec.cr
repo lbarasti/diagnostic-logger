@@ -7,6 +7,7 @@ class DiagnosticLogger
   def self.io
     TestIO
   end
+
   def self.pattern
     "%{date} [%{level}]-[%{logger}--%{fiber}]: %{msg}"
   end
