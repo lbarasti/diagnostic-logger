@@ -26,4 +26,20 @@ describe Config do
       appender = Config.load("logger:\n  appender_class: UnknownAppender").appender
     end
   end
+
+  it "can load batch settings from config" do
+    config = Config.load("logger:\n  batch_size: 400\n  batch_max_time: 2.5")
+    config.batch_size.should eq(400)
+    config.batch_max_time.should eq(2.5.seconds)
+  end
+
+  it "can load severity settings from config" do
+    config = Config.load("logger:\n  level: WARN")
+    config.level.should eq Logger::Severity::WARN
+  end
+
+  it "can load the appender's pattern from config" do
+    config = Config.load("logger:\n  pattern: \"<%{logger}|%{level}>\"")
+    config.pattern.should eq "<%{logger}|%{level}>"
+  end
 end
