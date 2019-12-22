@@ -18,7 +18,7 @@ class DiagnosticLogger
     end
   end
 
-  def initialize(@name : String? = nil)
+  def initialize(@name : String? = nil, @level : Logger::Severity = @@config.level)
   end
 
   def self.write(messages : Enumerable(Message))
@@ -40,10 +40,6 @@ class DiagnosticLogger
     @@config.appender
   end
 
-  def self.level
-    @@config.level
-  end
-
   def self.pattern
     @@config.pattern
   end
@@ -52,7 +48,7 @@ class DiagnosticLogger
 
     # Logs *message* if the logger's current severity is lower or equal to `{{name.id}}`.
     def {{name.id.downcase}}(message)
-      return if Logger::{{name.id}} < {{@type}}.level
+      return if Logger::{{name.id}} < @level
       Input.send({
         timestamp:  Time.utc,
         msg:        message,

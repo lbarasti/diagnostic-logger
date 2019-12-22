@@ -51,4 +51,15 @@ describe DiagnosticLogger do
     TestIO.to_s.should contain(" [WARN]-[test-1--main]: hello world")
     TestIO.clear
   end
+
+  it "supports log level overrides" do
+    DiagnosticLogger.new("override-level", level: :debug).debug("w3,sa")
+    Fiber.yield
+    TestIO.to_s.should contain("w3,sa")
+    TestIO.clear
+
+    DiagnosticLogger.new("override-level", level: :warn).info("hello")
+    Fiber.yield
+    TestIO.to_s.should eq("")
+  end
 end
