@@ -7,9 +7,13 @@ class DiagnosticLogger
   private alias Message = {timestamp: Time, msg: String, fiber_name: String?, level: ::Logger::Severity, name: String?, pid: Int32}
   private Input = Channel(Message).new
   @@config : Config = Config.load
-  @@batch_max_size : Int32 = @@config.batch_size
+
   @@batch_max_time : Time::Span = @@config.batch_max_time
-  @@batch : Channel(Enumerable(Message)) = ChannelUtil.batch(Input, max_size: @@batch_max_size, max_time: @@batch_max_time)
+  @@batch : Channel(Enumerable(Message)) | Channel(Message) = if @@config.flush_immediately?
+    Input
+  else
+    ChannelUtil.batch(Input, max_size: @@config.batch_size, max_time: @@batch_max_time)
+  end
 
   spawn do
     loop do
@@ -23,17 +27,26 @@ class DiagnosticLogger
 
   def self.write(messages : Enumerable(Message))
     messages.each { |message|
-      io << pattern % {
-        date:   message[:timestamp],
-        level:  message[:level],
-        logger: message[:name],
-        fiber:  message[:fiber_name],
-        msg:    message[:msg],
-        pid:    message[:pid],
-      }
-      io << "\n"
+      write_one(message)
     }
     io.flush
+  end
+
+  def self.write(message : Message)
+    write_one(message)
+    io.flush
+  end
+
+  def self.write_one(message : Message)
+    io << pattern % {
+      date:   message[:timestamp],
+      level:  message[:level],
+      logger: message[:name],
+      fiber:  message[:fiber_name],
+      msg:    message[:msg],
+      pid:    message[:pid],
+    }
+    io << "\n"
   end
 
   def self.io

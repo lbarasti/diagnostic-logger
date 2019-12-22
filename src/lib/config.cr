@@ -28,9 +28,8 @@ class DiagnosticLogger
     batch_size : Int32,
     batch_max_time : Time::Span,
     appender : IO,
-    pattern : String
+    pattern : String do
 
-  struct Config
     ConfigFile = "config.yml" # point at top-level configuration file
     
     DefaultLevel = ::Logger::Severity::INFO
@@ -38,6 +37,10 @@ class DiagnosticLogger
     DefaultBatchMaxTime = 0_f32
     DefaultAppender = ConsoleAppender.new(1, blocking: (LibC.isatty(1)) == 0)
     DefaultPattern = "%{date} | [%{level}] %{pid}>%{fiber}>%{logger} | %{msg}"
+
+    def flush_immediately? : Bool
+      batch_size == 1
+    end
 
     enum Appender
       ConsoleAppender,
@@ -49,9 +52,8 @@ class DiagnosticLogger
       batch_size : Int32,
       batch_max_time : Float32,
       appender_class : Appender,
-      pattern : String
+      pattern : String do
   
-    struct RawConfig
       YAML.mapping(
         level: {
           type: Logger::Severity,
