@@ -6,8 +6,9 @@ require "./lib/channel_util"
 class DiagnosticLogger
   private alias Message = {timestamp: Time, msg: String, fiber_name: String?, level: ::Logger::Severity, name: String?, pid: Int32}
   private Input = Channel(Message).new
-  @@batch_max_size = Config.load_batch_max_size
-  @@batch_max_time = Config.load_batch_max_time
+  @@config : Config = Config.load
+  @@batch_max_size : Int32 = @@config.batch_size
+  @@batch_max_time : Time::Span = @@config.batch_max_time
   @@batch : Channel(Enumerable(Message)) = ChannelUtil.batch(Input, max_size: @@batch_max_size, max_time: @@batch_max_time)
 
   spawn do
@@ -35,16 +36,16 @@ class DiagnosticLogger
     io.flush
   end
 
-  def self.io # lazy loading the appender for better testability
-    @@io ||= Config.load_appender
+  def self.io
+    @@config.appender
   end
 
   def self.level
-    @@level ||= Config.load_level
+    @@config.level
   end
 
   def self.pattern
-    @@pattern ||= Config.load_pattern
+    @@config.pattern
   end
 
   {% for name in ::Logger::Severity.constants %}

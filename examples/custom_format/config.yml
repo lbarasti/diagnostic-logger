@@ -1,10 +1,9 @@
 logger:
   level: INFO
-  appender:
-    name: STDOUT
-    class: ConsoleAppender
-    pattern: >-
-      {
-      "date": "%{date}",
-      "message": "%{msg}"
-      }
+  appender_name: STDOUT
+  appender_class: ConsoleAppender
+  pattern: >-
+    {
+    "date": "%{date}",
+    "message": "%{msg}"
+    }

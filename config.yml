@@ -1,12 +1,6 @@
 logger:
   level: INFO
-  appender:
-    name: FILE
-    class: FileAppender # | ConsoleAppender
-    file: app.log
-    # pattern supports the following keys: date, level, pid, logger, fiber, msg
-    pattern: "[%{date}] [%{level}] [%{logger}] [%{fiber}] - %{msg}"
-    # immediate_flush: true
-  # severity:
-  #   *: DEBUG
-  #   My::Class: INFO
+  appender_name: FILE
+  appender_class: ConsoleAppender # | FileAppender
+  # pattern supports the following keys: date, level, pid, logger, fiber, msg
+  pattern: "[%{date}] [%{level}] [%{logger}] [%{fiber}] - %{msg}"
