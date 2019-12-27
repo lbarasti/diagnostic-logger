@@ -3,30 +3,10 @@ require "logger"
 require "./appenders"
 
 class DiagnosticLogger
-  module YamlSeverityConverter
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Logger::Severity
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-  
-      Logger::Severity.parse(node.value)
-    end
-  end
-
-  module YamlAppenderConverter
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-  
-      Config::Appender.parse(node.value)
-    end
-  end
-
   record Config,
     level : ::Logger::Severity,
     batch_size : Int32,
-    batch_max_time : Time::Span,
+    batch_interval : Time::Span,
     appender : IO,
     pattern : String do
 
@@ -50,28 +30,26 @@ class DiagnosticLogger
     private record RawConfig,
       level : ::Logger::Severity,
       batch_size : Int32,
-      batch_max_time : Float32,
+      batch_interval : Float32,
       appender_class : Appender,
       pattern : String do
   
       YAML.mapping(
         level: {
           type: Logger::Severity,
-          default: DefaultLevel,
-          converter: YamlSeverityConverter
+          default: DefaultLevel
         },
         batch_size: {
           type: Int32,
           default: DefaultBatchSize
         },
-        batch_max_time: {
-          type: Float32,
+        batch_interval: {
+          type: Float32 | Int32,
           default: DefaultBatchMaxTime
         },
         appender_class: {
           type: Appender,
-          default: Appender::ConsoleAppender,
-          converter: YamlAppenderConverter
+          default: Appender::ConsoleAppender
         },
         pattern: {
           type: String,
@@ -95,7 +73,7 @@ class DiagnosticLogger
       Config.new(
         level: raw_config.level,
         batch_size: raw_config.batch_size,
-        batch_max_time: raw_config.batch_max_time.seconds,
+        batch_interval: raw_config.batch_interval.seconds,
         appender: appender,
         pattern: raw_config.pattern
       )

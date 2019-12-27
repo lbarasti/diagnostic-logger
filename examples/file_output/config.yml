@@ -1,5 +1,4 @@
 logger:
   level: INFO
-  appender_name: FILE
   appender_class: FileAppender
   appender_file: app.logs

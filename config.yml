@@ -1,6 +1,5 @@
 logger:
   level: INFO
-  appender_name: FILE
   appender_class: ConsoleAppender # | FileAppender
   # pattern supports the following keys: date, level, pid, logger, fiber, msg
   pattern: "[%{date}] [%{level}] [%{logger}] [%{fiber}] - %{msg}"

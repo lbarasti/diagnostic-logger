@@ -9,24 +9,28 @@ class DiagnosticLogger
         end
       }
     end
-    def self.batch(in_stream : Channel(T), max_size, max_time) : Channel(Enumerable(T)) forall T
+    def self.batch(in_stream : Channel(T), size : Int32, interval : Time::Span) : Channel(Enumerable(T)) forall T
+      # TODO: assert on `size` and `interval`
       Channel(Enumerable(T)).new.tap { |out_stream|
-        memory = Array(T).new(max_size)
+        memory = Array(T).new(size)
         spawn do
           loop do
-            timeout = timer(max_time)
+            timeout = timer(interval)
+            sent = false
             loop do
               select
               when v = in_stream.receive
                 memory << v
-                if memory.size >= max_size
+                if memory.size >= size
                   out_stream.send(memory.dup)
                   memory.clear
-                  break
+                  sent = true
                 end
               when timeout.receive
-                out_stream.send(memory.dup)
-                memory.clear
+                unless sent
+                  out_stream.send(memory.dup)
+                  memory.clear
+                end
                 break
               end
             end

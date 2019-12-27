@@ -1,6 +1,5 @@
 logger:
   level: INFO
-  appender_name: STDOUT
   appender_class: ConsoleAppender
   pattern: >-
     {

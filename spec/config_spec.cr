@@ -6,7 +6,7 @@ describe Config do
     c = Config.load("logger:\n")
     c.level.should eq Logger::Severity::INFO
     c.batch_size.should eq 1
-    c.batch_max_time.should eq 0.seconds
+    c.batch_interval.should eq 0.seconds
     c.appender.should be_a ConsoleAppender
     c.pattern.should eq Config::DefaultPattern
   end
@@ -28,9 +28,9 @@ describe Config do
   end
 
   it "can load batch settings from config" do
-    config = Config.load("logger:\n  batch_size: 400\n  batch_max_time: 2.5")
+    config = Config.load("logger:\n  batch_size: 400\n  batch_interval: 2.5")
     config.batch_size.should eq(400)
-    config.batch_max_time.should eq(2.5.seconds)
+    config.batch_interval.should eq(2.5.seconds)
   end
 
   it "can load severity settings from config" do

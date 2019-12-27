@@ -8,11 +8,11 @@ class DiagnosticLogger
   private Input = Channel(Message).new
   @@config : Config = Config.load
 
-  @@batch_max_time : Time::Span = @@config.batch_max_time
+  @@batch_interval : Time::Span = @@config.batch_interval
   @@batch : Channel(Enumerable(Message)) | Channel(Message) = if @@config.flush_immediately?
     Input
   else
-    ChannelUtil.batch(Input, max_size: @@config.batch_size, max_time: @@batch_max_time)
+    ChannelUtil.batch(Input, size: @@config.batch_size, interval: @@batch_interval)
   end
 
   spawn do
