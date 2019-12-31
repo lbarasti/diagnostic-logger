@@ -1,6 +1,6 @@
 class DiagnosticLogger
   module ChannelUtil
-    def self.timer(span : Time::Span, name = "timer") : Channel(Nil)
+    private def self.timer(span : Time::Span, name = "timer") : Channel(Nil)
       Channel(Nil).new(1).tap { |done|
         spawn(name: name) do
           sleep span
@@ -9,6 +9,9 @@ class DiagnosticLogger
         end
       }
     end
+
+    # Sends batches of messages either every `size` messages received or every `interval`,
+    # if a batch has not been sent within the last `interval`.
     def self.batch(in_stream : Channel(T), size : Int32, interval : Time::Span) : Channel(Enumerable(T)) forall T
       # TODO: assert on `size` and `interval`
       Channel(Enumerable(T)).new.tap { |out_stream|
@@ -36,7 +39,7 @@ class DiagnosticLogger
             end
           rescue Channel::ClosedError
             out_stream.send(memory.dup)
-            out_stream.close()
+            out_stream.close
             break
           end
         end

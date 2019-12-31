@@ -6,13 +6,13 @@ require "./lib/channel_util"
 class DiagnosticLogger
   private alias Message = {timestamp: Time, msg: String, fiber_name: String?, level: ::Logger::Severity, name: String?, pid: Int32}
   private Input = Channel(Message).new
-  @@config : Config = Config.load
+  ConfigFile = "config.yml" # point to top-level configuration file
+  @@config : Config = Config.load(File.exists?(ConfigFile) ? File.read(ConfigFile) : "")
 
-  @@batch_interval : Time::Span = @@config.batch_interval
-  @@batch : Channel(Enumerable(Message)) | Channel(Message) = if @@config.flush_immediately?
+  @@batch : Channel(Enumerable(Message)) | Channel(Message) = if (bc = @@config.batch_config).nil?
     Input
   else
-    ChannelUtil.batch(Input, size: @@config.batch_size, interval: @@batch_interval)
+    ChannelUtil.batch(Input, size: bc.size, interval: bc.interval)
   end
 
   spawn do

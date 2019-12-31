@@ -1,7 +1,9 @@
 require "../../src/diagnostic_logger"
 require "uuid"
 
-log = DiagnosticLogger.new("to-console")
+raise Exception.new("No config file should be provided") if File.exists?("config.yml")
+
+log = DiagnosticLogger.new("default_logger")
 
 1000.times { |i|
   spawn(name: "f_#{i}") do
@@ -10,4 +12,4 @@ log = DiagnosticLogger.new("to-console")
   end
 }
 
-sleep 5
+sleep 3

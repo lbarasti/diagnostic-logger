@@ -1,6 +1,7 @@
 logger:
   level: INFO
-  appender_class: ConsoleAppender
+  appender:
+    class: ConsoleAppender
   pattern: >-
     {
     "date": "%{date}",
